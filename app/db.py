@@ -4,10 +4,9 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from datetime import datetime
 import uuid
 from sqlalchemy import Boolean
-from fastapi_users.db import SQLAlchemyBaseUserTableUUID
-
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyUserDatabase
+from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTableUUID
 from dotenv import load_dotenv
 import os
 
@@ -46,9 +45,7 @@ async def create_db_and_tables():
 class User(SQLAlchemyBaseUserTableUUID, Base):
     __tablename__ = "users"
 
-    is_active = Column(Boolean, default=True)
-    is_superuser = Column(Boolean, default=False)
-    is_verified = Column(Boolean, default=False)
+    
 
 
 # ---------------- FASTAPI USERS DB ----------------

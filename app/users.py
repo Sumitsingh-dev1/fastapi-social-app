@@ -9,6 +9,7 @@ from fastapi_users.db import SQLAlchemyUserDatabase
 from dotenv import load_dotenv
 from app.db import User, get_user_db
 
+
 # ------------------ ENV ------------------
 load_dotenv()
 SECRET = os.getenv("SECRET_KEY")
