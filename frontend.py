@@ -32,6 +32,7 @@ if page == "Login":
             res = requests.post(
                 f"{API}/auth/jwt/login",
                 data={"username": email, "password": password}
+                timeout=10
             )
 
         if res.status_code == 200:
@@ -59,6 +60,7 @@ elif page == "Signup":
             res = requests.post(
                 f"{API}/auth/register",
                 json={"email": email, "password": password}
+                timeout=10
             )
 
         if res.status_code == 201:
@@ -91,6 +93,8 @@ elif page == "Upload":
                         headers=headers,
                         files={"file": file},
                         data={"caption": caption}
+                        timeout=20
+
                     )
 
                 if res.status_code == 200:
@@ -102,70 +106,73 @@ elif page == "Upload":
 
 # ---------------- FEED ----------------
 elif page == "Feed":
-    st.title("📰 Feed")
+    st.subheader("Feed")
 
     if "token" not in st.session_state:
-        st.warning("⚠️ Please login first")
+        st.error("❌ Please login first")
     else:
         headers = {
             "Authorization": f"Bearer {st.session_state['token']}"
         }
 
-        res = requests.get(f"{API}/feed", headers=headers)
+        try:
+            res = requests.get(
+                f"{API}/feed",
+                headers=headers,
+                timeout=10
+            )
 
-        if res.status_code == 200:
-            posts = res.json().get("posts", [])
+            st.write("DEBUG STATUS:", res.status_code)
 
-            for post in posts:
-                with st.container():
+            if res.status_code == 200:
+                data = res.json()
+                posts = data.get("posts", [])
 
-                    st.markdown(f"### 👤 {post['email']}")
+                if not posts:
+                    st.warning("No posts yet")
+                else:
+                    for post in posts:
+                        st.markdown(f"### 👤 {post['email']}")
 
-                    # 🔥 IMAGE
-                    st.image(post["url"])
+                        # IMAGE
+                        st.image(post["url"])
 
-                    # 🔥 CAPTION
-                    st.write(post["caption"])
+                        st.write(post["caption"])
 
-                    # 🔥 LIKE / DELETE SECTION
-                    col1, col2, col3 = st.columns(3)
+                        col1, col2 = st.columns(2)
 
-                    with col1:
-                        if st.button("❤️ Like", key=f"like_{post['id']}"):
-                            requests.post(
-                                f"{API}/posts/{post['id']}/like",
-                                headers=headers
-                            )
-                            st.rerun()
-
-                    with col2:
-                        st.write(f"❤️ {post.get('likes', 0)}")
-
-                    with col3:
-                        if post["is_owner"]:
-                            if st.button("🗑 Delete", key=f"del_{post['id']}"):
-                                requests.delete(
-                                    f"{API}/posts/{post['id']}",
+                        # LIKE
+                        with col1:
+                            if st.button("❤️ Like", key=f"like_{post['id']}"):
+                                requests.post(
+                                    f"{API}/posts/{post['id']}/like",
                                     headers=headers
                                 )
                                 st.rerun()
 
-                    # 🔥 COMMENT INPUT
-                    comment = st.text_input("Add comment", key=f"c_{post['id']}")
+                        # LIKE COUNT
+                        with col2:
+                            st.write(f"❤️ {post['likes']}")
 
-                    if st.button("Post", key=f"btn_{post['id']}"):
-                        requests.post(
-                            f"{API}/posts/{post['id']}/comment",
-                            headers=headers,
-                            data={"content": comment}
-                        )
-                        st.rerun()
+                        # COMMENT
+                        comment = st.text_input("Comment", key=f"c_{post['id']}")
 
-                    # 🔥 SHOW COMMENTS
-                    for c in post.get("comments", []):
-                        st.write(f"💬 {c['content']}")
+                        if st.button("Post", key=f"btn_{post['id']}"):
+                            requests.post(
+                                f"{API}/posts/{post['id']}/comment",
+                                headers=headers,
+                                data={"content": comment}
+                            )
+                            st.rerun()
 
-                    st.markdown("---")
+                        # SHOW COMMENTS
+                        for c in post["comments"]:
+                            st.write(f"💬 {c['content']}")
 
-        else:
-            st.error(res.text)
+                        st.markdown("---")
+
+            else:
+                st.error(res.text)
+
+        except Exception as e:
+            st.error(f"Connection Error: {e}")
