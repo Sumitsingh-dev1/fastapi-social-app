@@ -59,7 +59,7 @@ elif page == "Signup":
         with st.spinner("Creating account..."):
             res = requests.post(
                 f"{API}/auth/register",
-                json={"email": email, "password": password}
+                json={"email": email, "password": password},
                 timeout=10
             )
 
