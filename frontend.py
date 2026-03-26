@@ -31,7 +31,7 @@ if page == "Login":
         with st.spinner("Logging in..."):
             res = requests.post(
                 f"{API}/auth/jwt/login",
-                data={"username": email, "password": password}
+                data={"username": email, "password": password},
                 timeout=10
             )
 
