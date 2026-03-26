@@ -116,11 +116,8 @@ elif page == "Feed":
         }
 
         try:
-            res = requests.get(
-                f"{API}/feed",
-                headers=headers,
-                timeout=10
-            )
+            res = requests.get(f"{API}/feed?skip=0&limit=5", headers=headers)
+            
 
             st.write("DEBUG STATUS:", res.status_code)
 

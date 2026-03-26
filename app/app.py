@@ -1,10 +1,15 @@
+from unittest import skip
+
 from fastapi import FastAPI, HTTPException, File, UploadFile, Form, Depends
+from pytest import skip
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from contextlib import asynccontextmanager
 import shutil, os, tempfile, logging
 import base64
+
+from sympy import limit
 from app.schemas import PostResponse, UserRead, UserCreate, UserUpdate
 from app.db import Post, Like, Comment, create_db_and_tables, get_async_session, User
 from app.images import imagekit
@@ -88,7 +93,7 @@ async def get_feed(
     session: AsyncSession = Depends(get_async_session)
 ):
     result = await session.execute(
-        select(Post).order_by(Post.created_at.desc())
+        select(Post).order_by(Post.created_at.desc()).offset(skip).limit(limit)
     )
 
     posts = result.scalars().all()
