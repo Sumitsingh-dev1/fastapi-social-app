@@ -42,22 +42,25 @@ async def upload_file(
     session: AsyncSession = Depends(get_async_session)
 ):
     try:
-        
-
+        # ✅ read file
         file_bytes = await file.read()
 
+        # ✅ convert to base64
         encoded_file = base64.b64encode(file_bytes).decode()
 
+        # ✅ upload to ImageKit
         upload = imagekit.upload_file(
-        file=encoded_file,
-        file_name=file.filename
-)
-        
+            file=encoded_file,
+            file_name=file.filename,
+            options={
+                "use_unique_file_name": True
+            }
+        )
 
-        image_url = upload.url
+        # ✅ get URL
+        image_url = upload.response_metadata.raw["url"]
 
-        print("IMAGE URL:", image_url)
-
+        # ✅ save to DB
         new_post = Post(
             user_id=str(user.id),
             caption=caption,
