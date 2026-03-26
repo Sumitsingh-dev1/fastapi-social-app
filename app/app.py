@@ -50,20 +50,16 @@ async def upload_file(
         # ✅ read file
         file_bytes = await file.read()
 
-        # ✅ convert to base64
-        encoded_file = base64.b64encode(file_bytes).decode()
-
-        # ✅ upload to ImageKit
+        # ✅ upload to imagekit
         upload = imagekit.upload_file(
-            file=encoded_file,
-            file_name=file.filename,
-            options={
-                "use_unique_file_name": True
-            }
+            file=file_bytes,
+            file_name=file.filename
         )
 
-        # ✅ get URL
-        image_url = upload.response_metadata.raw["url"]
+        # ✅ FIX URL EXTRACTION (VERY IMPORTANT)
+        image_url = upload.url   # ✅ CORRECT
+
+        print("IMAGE URL:", image_url)
 
         # ✅ save to DB
         new_post = Post(
@@ -80,8 +76,8 @@ async def upload_file(
         return {"message": "Uploaded", "url": image_url}
 
     except Exception as e:
+        print("UPLOAD ERROR:", e)
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 # ------------------ FEED (OPTIMIZED + PAGINATION) ------------------
