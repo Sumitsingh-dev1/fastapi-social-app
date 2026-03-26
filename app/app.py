@@ -9,7 +9,7 @@ from app.schemas import PostResponse, UserRead, UserCreate, UserUpdate
 from app.db import Post, Like, Comment, create_db_and_tables, get_async_session, User
 from app.images import imagekit
 from app.users import auth_backend, current_active_user, fastapi_users
-from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
+
 
 
 
