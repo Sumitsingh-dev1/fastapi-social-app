@@ -92,7 +92,7 @@ elif page == "Upload":
                         f"{API}/upload",
                         headers=headers,
                         files={"file": file},
-                        data={"caption": caption}
+                        data={"caption": caption},
                         timeout=20
 
                     )
